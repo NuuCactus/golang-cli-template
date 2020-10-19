@@ -4,11 +4,13 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
+var cfgFile string
 var verbose bool
 
 // rootCmd represents the base command when called without any subcommands
@@ -32,12 +34,28 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initLogging)
+	cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "./.golang-cli-template.yaml", "config file")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose output")
+}
+
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	if cfgFile != "" {
+		// Use config file from the flag.
+		viper.SetConfigFile(cfgFile)
+		viper.AutomaticEnv() // read in environment variables that match
+
+		// If a config file is found, read it in.
+		if err := viper.ReadInConfig(); err == nil {
+			log.Debug().Msgf("Using config file: %s", viper.ConfigFileUsed())
+		}
+	}
 }
 
 func initLogging() {
@@ -46,7 +64,10 @@ func initLogging() {
 		log.Logger = log.With().Caller().Logger()
 	}
 
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	log.Logger = log.Output(zerolog.ConsoleWriter{
+		Out:        os.Stderr,
+		TimeFormat: "15:04:05.999",
+	})
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.TimestampFieldName = "time"

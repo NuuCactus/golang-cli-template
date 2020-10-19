@@ -1,26 +1,20 @@
-package mycmd
+package mycommand
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // RunServe the main event loop for the service
 func RunMyCommand() func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 
-		/* Using flags
-		myflag, err := cmd.Flags().GetString("myflag")
-		if err != nil {
-			log.Warn().Msg("Missing myflag")
-			os.Exit(1)
-		}
-		app.Env.MyFlag = myflag
-		*/
+		flag := viper.GetString("flag")
 
-		fmt.Println("Hello World!")
+		log.Info().Msgf("Hello World! Flag: %s", flag)
 
 		os.Exit(0)
 	}
