@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -50,6 +51,9 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 		viper.AutomaticEnv() // read in environment variables that match
+		// OBS without this prefix sys variables like USER and USERNAME will be used with "user" flag which probably which gives headaches
+		viper.SetEnvPrefix("ENV")
+		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 		// If a config file is found, read it in.
 		if err := viper.ReadInConfig(); err == nil {
